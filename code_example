@@ -1,0 +1,107 @@
+import requests
+from bs4 import BeautifulSoup 
+import pandas as pd
+import os
+os.chdir(/Users/stavi/Downloads)
+
+url1 = 'https://www.hse.ru/ba/political/courses'
+url2 = 'https://www.hse.ru/ba/political/courses/page2.html?year=2018'
+url3 = 'https://www.hse.ru/ba/political/courses/page3.html?year=2018'
+url4 = 'https://www.hse.ru/ba/political/courses/page4.html?year=2018'
+
+page1 = requests.get(url1)
+page2 = requests.get(url2)
+page3 = requests.get(url3)
+page4 = requests.get(url4)
+
+soup1 = BeautifulSoup(page1.text, 'lxml')
+soup2 = BeautifulSoup(page2.text, 'lxml')
+soup3 = BeautifulSoup(page3.text, 'lxml')
+soup4 = BeautifulSoup(page4.text, 'lxml')
+
+table1 = soup1.findAll('div', {'class':'edu-events'})[0]
+courses1 = []
+for i in range(0, len(table1.findAll('div', {'class':'edu-events_title title large'}))):
+    courses1.append(table1.findAll('div', {'class':'edu-events_title title large'})[i].text)
+table2 = soup2.findAll('div', {'class':'edu-events'})[0]
+courses2 = []
+for i in range(0, len(table2.findAll('div', {'class':'edu-events_title title large'}))):
+    courses2.append(table2.findAll('div', {'class':'edu-events_title title large'})[i].text)
+table3 = soup3.findAll('div', {'class':'edu-events'})[0]
+courses3 = []
+for i in range(0, len(table3.findAll('div', {'class':'edu-events_title title large'}))):
+    courses3.append(table3.findAll('div', {'class':'edu-events_title title large'})[i].text)
+table4 = soup4.findAll('div', {'class':'edu-events'})[0]
+courses4 = []
+for i in range(0, len(table4.findAll('div', {'class':'edu-events_title title large'}))):
+    courses4.append(table4.findAll('div', {'class':'edu-events_title title large'})[i].text)
+    
+courses_all = courses1+courses2+courses3+courses4
+
+urls1 = []
+for link in soup1.find_all('a'):
+    if '/courses' in link.get('href'):
+        urls1.append(link.get('href'))
+urls1 = urls1[10:30]
+
+urls2 = []
+for link in soup2.find_all('a'):
+    if '/courses' in link.get('href'):
+        urls2.append(link.get('href'))
+urls2 = urls2[10:30]
+
+urls3 = []
+for link in soup3.find_all('a'):
+    if '/courses' in link.get('href'):
+        urls3.append(link.get('href'))
+urls3 = urls3[10:30]
+
+urls4 = []
+for link in soup4.find_all('a'):
+    if '/courses' in link.get('href'):
+        urls4.append(link.get('href'))
+urls4 = urls4[10:22]
+
+urls_all = urls1+urls2+urls3+urls4
+
+stat_cour1 = []
+for i in range(0, len(table1.findAll('div', {'class':'edu-events_title title large'}))):
+    stat_cour1.append(table1.findAll('div', {'class':'edu-program_status'})[i].text)
+
+stat_cour2 = []
+for i in range(0, len(table2.findAll('div', {'class':'edu-events_title title large'}))):
+    stat_cour2.append(table2.findAll('div', {'class':'edu-program_status'})[i].text)  
+
+stat_cour3 = []
+for i in range(0, len(table3.findAll('div', {'class':'edu-events_title title large'}))):
+    stat_cour3.append(table3.findAll('div', {'class':'edu-program_status'})[i].text)
+
+stat_cour4 = []
+for i in range(0, len(table4.findAll('div', {'class':'edu-events_title title large'}))):
+    stat_cour4.append(table4.findAll('div', {'class':'edu-program_status'})[i].text)
+
+stat_cour_all = stat_cour1+stat_cour2+stat_cour3+stat_cour4
+
+lang1 = []
+for i in range(0, len(table1.findAll('div', {'class':'edu-events_title title large'}))):
+    lang1.append(table1.findAll('div', {'class':'edu-program_languges b-events__languges with-indent1'})[i].text)
+
+lang2 = []
+for i in range(0, len(table2.findAll('div', {'class':'edu-events_title title large'}))):
+    lang2.append(table2.findAll('div', {'class':'edu-program_languges b-events__languges with-indent1'})[i].text)
+    
+lang3 = []
+for i in range(0, len(table3.findAll('div', {'class':'edu-events_title title large'}))):
+    lang3.append(table3.findAll('div', {'class':'edu-program_languges b-events__languges with-indent1'})[i].text)
+    
+lang4 = []
+for i in range(0, len(table4.findAll('div', {'class':'edu-events_title title large'}))):
+    lang4.append(table4.findAll('div', {'class':'edu-program_languges b-events__languges with-indent1'})[i].text)
+
+lang_all = lang1+lang2+lang3+lang4
+
+df = pd.DataFrame([courses_all, urls_all, stat_cour_all, lang_all]).transpose()
+df.columns = ['Название курса',"Ссылка на курс", "Статус курса", "Язык"]
+df.head()
+
+df.to_csv('HSE_courses.csv')
